@@ -162,6 +162,10 @@
     <property name="out.apk" value="/media/zhang/新加卷/WorkPlan/apk_release_debug/${out.apk.floder}" />
     <property name="out.absolute.apk" location="${out.apk}" />
 	<!--end-->
+	<!--创建自定义的version记录的文件-->
+    <property name="verison.p" value="version.p"/>
+    <property name="verison.absolute.p" location="${verison.p}" />
+	<!--end-->
     <property name="out.absolute.dir" location="${out.dir}" />
     <property name="out.classes.absolute.dir" location="${out.dir}/classes" />
     <property name="out.res.absolute.dir" location="${out.dir}/res" />
@@ -196,18 +200,14 @@
         <istrue value="${verbose}" />
     </condition>
 
-    <!--检查输出.p文件是否存在-->
-    <condition property="has.p">
-	 <and>   
-  	 <available file="*.p"/> 
-  	</and> 
-    </condition>
+ 
     <!--end-->
-    <!--比较版本号是否一样-->
-    <condition>
-	<equals arg1="${manifest.android:versionName}" arg2="${var2}" />
-    </condition>
-    <!--end-->
+   <!--输出.p文件内容-->
+   <loadfile property="old.version"
+      srcFile="${verison.absolute.p}"
+      encoding="UTF-8"/>
+   <!--end-->
+
     <!-- properties for signing in release mode -->
     <condition property="has.keystore">
         <and>
@@ -1192,8 +1192,8 @@
                         out.package="${out.final.file}" />
                 <echo level="info">Release Package: ${out.final.file}</echo>
 		<echo level="info">${manifest.android:versionName}</echo>
-		<!--创建.p文件,用于识别下载打包verison name 是否更改-->
-		<touch file="${manifest.android:versionName}.p"/>
+		<!--.p文件,用于识别下载打包verison name 是否更改-->
+		<echo file="${verison.absolute.p}" message="${manifest.android:versionName}"/>  
 		<!--end-->
 		<!--计算生成apk的md5-->
 		<checksum file="${out.final.file}" />
@@ -1203,12 +1203,52 @@
         </do-only-if-not-library>
         <record-build-info />
     </target>
+  
+	<!--判断是否存在.p 文件-->
+	<target name="-release-has-p" >  
+	    <if>
+                       <!--检查输出.p文件是否存在-->
+		    <condition property="has.p">
+			 <and>   
+		  	 <available file="${verison.absolute.p}"/> 
+		  	</and> 
+		    </condition>
+                    <then>
+			<!--存在.p文件,证明不是第一次使用-->
+ 			<echo>====================================================</echo>
+			<echo>====================let's go========================</echo>
+			<echo>====================================================</echo>
+			<if>
+				<condition property="has.same">
+				 <!--判断版本号是否有改动-->
+					<equals arg1="${old.version}" arg2="${manifest.android:versionName}"/>
+				
+				</condition>
+				<then>
+					<!--版本号有改动的情况-->	
+				</then>
+				<else>
+					<!--版本好没有改动的情况下-->
+				</else>
+			</if>
+			
 
+
+                    </then>
+			<else>
+			<!--第一次使用,给个提示先-->
+			<echo>====================================================</echo>
+			<echo>ok , 这也许是第一次使用本build.xml,good luck for you</echo>
+			<echo>====================================================</echo>
+			<touch file="${verison.absolute.p}"/>  
+			</else>
+                </if>
+	</target>  
     <!-- This runs -package-release and -release-nosign first and then runs
          only if release-sign is true (set in -release-check,
          called by -release-no-sign)-->
     <target name="release"
-                depends="-set-release-mode, -release-obfuscation-check, -package, -post-package, -release-prompt-for-password, -release-nosign, -release-sign, -post-build"
+                depends=" -set-release-mode, -release-obfuscation-check, -package, -post-package, -release-prompt-for-password, -release-nosign, -release-sign, -post-build"
                 description="Builds the application in release mode.">
     </target>
 
