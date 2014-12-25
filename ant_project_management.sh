@@ -14,25 +14,35 @@ base_path="."
 base_file="AndroidManifest.xml"
 
 cd $root_path;
-
+ls
 #this for .
-function antmanagent(){
+function ant_managent(){
 
-for file in 'ls $1'
+for file in `ls $1`
 do
 local path=$1"/"$file
 local name=$file
+echo "\n"  $path  "\n"
 #local lastname=${file##*.};
- if [ [ -d $1"/"$file ] && [ -s $1"/"$file"/"$base_file ] ]
-	##this is android project  
-	cd $1"/"$file;
-	printf "\nthis is android project\n"
-	echo ls
-
+ if [ -d $path ] 
   then
-fi
-then
+	if [ -s $1"/"$file"/"$base_file  ]
+	then
+		##this is android project  
+		cd $path;
+		ant debug
+		printf "\nthis is android project\n"
+		cd ..
+		#echo ls
 
+		else
 
+		printf "\n this is not android , ok we go next \n"
+	fi
+ fi
+done
 	
 }
+IFS=$'\n'
+
+ant_managent $base_path
