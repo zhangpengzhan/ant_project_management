@@ -10,33 +10,38 @@
 #
 #获取执行脚本所在目录的绝对路径
 root_path=$(dirname $(readlink -f $0))
+#脚本的相对路径
 base_path="."
+# android project 招牌文件
 base_file="AndroidManifest.xml"
-
+#移动当前目录到脚本所在的路径
 cd $root_path;
 ls
-#this for .
+#this for . 遍历当前路径
 function ant_managent(){
-
+# for 循环
 for file in `ls $1`
 do
 local path=$1"/"$file
 local name=$file
 echo "\n"  $path  "\n"
 #local lastname=${file##*.};
+#首先路径他的是一个文件夹
  if [ -d $path ] 
   then
+	#进去瞅一眼，是不是 android project
 	if [ -s $1"/"$file"/"$base_file  ]
 	then
 		##this is android project  
 		cd $path;
+		#移动进去，执行ant 命令
 		ant debug
 		printf "\nthis is android project\n"
+		#完成之后出来，遍历下一个，移出当前文件夹
 		cd ..
-		#echo ls
 
 		else
-
+		#不是 android project ， go next
 		printf "\n this is not android , ok we go next \n"
 	fi
  fi
