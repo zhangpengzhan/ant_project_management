@@ -35,7 +35,8 @@ echo "\n"  $path  "\n"
 		##this is android project  
 		cd $path;
 		#移动进去，执行ant 命令
-		ant debug
+		ant clean
+		ant release
 		printf "\nthis is android project\n"
 		#完成之后出来，遍历下一个，移出当前文件夹
 		cd ..
